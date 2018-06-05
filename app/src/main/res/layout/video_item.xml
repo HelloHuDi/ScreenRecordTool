@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="280dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:background="#CCCCCC"
+    android:layout_marginTop="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/ivBgFrame"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/record"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/ivFrame"
+            android:layout_width="match_parent"
+            android:scaleType="fitXY"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/colorPrimary"
+        android:alpha="0.8"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvDuration"
+                style="@style/video_item_textview_style"
+                android:text="00:00"/>
+
+            <View style="@style/video_item_view_style"/>
+
+            <TextView
+                android:id="@+id/tvSize"
+                style="@style/video_item_textview_style"
+                android:text="0B"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <RelativeLayout style="@style/video_item_relative_style">
+
+                <ImageButton
+                    android:id="@+id/btnDelete"
+                    style="@style/video_item_button_style"
+                    android:src="@drawable/delete"/>
+
+            </RelativeLayout>
+
+            <View style="@style/video_item_view_style"/>
+
+            <RelativeLayout style="@style/video_item_relative_style">
+
+                <ImageButton
+                    android:id="@+id/btnTransform"
+                    style="@style/video_item_button_style"
+                    android:src="@drawable/gif"/>
+
+            </RelativeLayout>
+
+            <View style="@style/video_item_view_style"/>
+
+            <RelativeLayout style="@style/video_item_relative_style">
+
+                <ImageButton
+                    android:id="@+id/btnPlay"
+                    style="@style/video_item_button_style"
+                    android:src="@drawable/play"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

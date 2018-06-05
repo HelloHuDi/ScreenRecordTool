@@ -1,9 +1,13 @@
 <p align="center">
-	<img width="72" height="72" src="art/ic_launcher_web.png"/>
+	<img width="72" height="72" src="art/ic_launcher-web.png"/>
 </p>
 <h3 align="center">ScreenRecordTool</h3>
 
 ## provide screen record tool , and the MP4 files that support the recording are converted to GIF
+
+## screenshot
+
+<img src="art/main.png" width="300px" height="500px"/>
 
 ### License
 
