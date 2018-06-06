@@ -11,7 +11,7 @@
 
 ## screenshot
 
-<img src="art/main.png" width="300px" height="500px"/>
+<img src="art/main.png" width="300px" height="500px"/> <img src="art/screen_1.gif" width="300px" height="500px"/> <img src="art/screen_2.gif" width="300px" height="500px"/>
 
 ### License
 

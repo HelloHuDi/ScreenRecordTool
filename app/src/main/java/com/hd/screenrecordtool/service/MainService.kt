@@ -49,9 +49,9 @@ class MainService : Service() {
             get() = this@MainService
     }
 
-    lateinit var recordLayout: ViewGroup
+    private lateinit var recordLayout: ViewGroup
 
-    lateinit var windowManager: WindowManager
+    private lateinit var windowManager: WindowManager
 
     private val record = AtomicBoolean(false)
 

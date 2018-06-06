@@ -66,7 +66,6 @@ class ConfigHelp(context: Context) {
         const val SAMPLE_RATE = "sample_rate"
         const val AUDIO_BITRATE = "audio_bitrate"
         const val AAC_PROFILE = "aac_profile"
-        const val VIDEO_FILE = "video_file"
         const val DEFAULT_VIDEO_CONFIG = "defaultVideoConfig"
         const val DEFAULT_AUDIO_CONFIG = "defaultAudioConfig"
     }
