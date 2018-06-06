@@ -1,5 +1,6 @@
 package com.hd.screenrecordtool.view
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.AlertDialog
 import android.content.ComponentName
@@ -9,7 +10,6 @@ import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.IBinder
 import android.provider.Settings
 import android.support.design.widget.Snackbar
@@ -21,17 +21,18 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+import com.afollestad.materialdialogs.MaterialDialog
 import com.bumptech.glide.Glide
-import com.hd.screencapture.ScreenCapture
 import com.hd.screenrecordtool.R
 import com.hd.screenrecordtool.help.VideoBean
 import com.hd.screenrecordtool.help.VideoHelper
+import com.hd.screenrecordtool.presenter.MainPresenter
 import com.hd.screenrecordtool.service.MainService
 import com.zhy.adapter.recyclerview.CommonAdapter
 import com.zhy.adapter.recyclerview.base.ViewHolder
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import java.util.*
 import kotlin.concurrent.thread
 
 
@@ -40,9 +41,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
 
     private val TAG = MainActivity::class.java.simpleName
 
-    private val screenCapture: ScreenCapture by lazy { ScreenCapture.with(this) }
-
-    private var mainFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "screen_capture")
+    private val mainPresenter: MainPresenter by lazy { MainPresenter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
     }
 
     override fun onBackPressed() {
-        if (screenCapture.isRunning) {
+        if (mainPresenter.isCapturing) {
             AlertDialog.Builder(this)//
                     .setMessage("Screen currently is recording! Confirm the stop?")//
                     .setCancelable(false)//
@@ -67,11 +66,11 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
     }
 
     override fun startRecord() {
-        if (!screenCapture.isRunning) screenCapture.startCapture()
+        mainPresenter.startCapture()
     }
 
     override fun stopRecord() {
-        if (screenCapture.isRunning) screenCapture.stopCapture()
+        mainPresenter.stopCapture()
     }
 
     override fun cancelRecord() {
@@ -96,7 +95,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
 
     private fun initVideoList() {
         rvVideo.layoutManager = GridLayoutManager(this, 2)
-        val beanList = VideoHelper.prepareBean(mainFile)
+        val beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
                 if (holder != null && t != null) {
@@ -112,22 +111,46 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
                     }
                     holder.getView<TextView>(R.id.tvDuration).text = t.duration
                     holder.getView<TextView>(R.id.tvSize).text = t.size
-                    holder.getView<ImageButton>(R.id.btnDelete).setOnClickListener {
-                        VideoHelper.deleteFile(t.filePath)
-                        beanList.remove(t)
-                        notifyItemRemoved(position)
-                    }
-                    holder.getView<ImageButton>(R.id.btnTransform).setOnClickListener {
-                        VideoHelper.transformGif(t.filePath)
-                        Toast.makeText(this@MainActivity, "not complete", Toast.LENGTH_SHORT).show()
-                    }
-                    holder.getView<ImageButton>(R.id.btnPlay).setOnClickListener {
-                        playVideo(t)
-                    }
+                    holder.getView<ImageButton>(R.id.btnDelete).setOnClickListener { reportAdapter(t, beanList, position) }
+                    holder.getView<ImageButton>(R.id.btnTransform).setOnClickListener { transformGIF(t) }
+                    holder.getView<ImageButton>(R.id.btnPlay).setOnClickListener { playVideo(t) }
                 }
             }
         }
         thread { VideoHelper.formatBean(beanList) { runOnUiThread { rvVideo.adapter.notifyDataSetChanged() } } }
+    }
+
+    private fun CommonAdapter<VideoBean>.reportAdapter(t: VideoBean, beanList: ArrayList<VideoBean>, position: Int) {
+        VideoHelper.deleteFile(t.filePath)
+        beanList.remove(t)
+        notifyItemRemoved(position)
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private fun transformGIF(t: VideoBean) {
+        var dialog: MaterialDialog? = null
+        VideoHelper.transformGif(t.filePath, {
+            //transforming
+            dialog = MaterialDialog.Builder(this)
+                    .backgroundColor(android.R.color.darker_gray)
+                    .customView(R.layout.dialog, true)
+                    .cancelable(false)
+                    .show()
+        }, { path ->
+            //success
+            dialog?.dismiss()
+            Snackbar.make(coordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG).setAction(resources.getString(R.string.look_look), { seeSee(path) }).show()
+        }, {
+            //failed
+            dialog?.dismiss()
+            Snackbar.make(coordinator, resources.getString(R.string.transform_failed), Snackbar.LENGTH_SHORT).show()
+        })
+    }
+
+    private fun seeSee(path: String) {
+        val intent = Intent(this@MainActivity, GifShowActivity::class.java)
+        intent.putExtra(GifShowActivity.GIF_TAG, path)
+        startActivity(intent)
     }
 
     private fun playVideo(t: VideoBean) {
@@ -159,6 +182,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
             if (Settings.canDrawOverlays(this@MainActivity)) {
                 val intent = Intent(this@MainActivity, MainService::class.java)
                 bindService(intent, ConnectionService(this), Context.BIND_AUTO_CREATE)
+                moveTaskToBack(true)
             } else {
                 Snackbar.make(view, resources.getString(R.string.need_permission), Snackbar.LENGTH_LONG)//
                         .setAction(resources.getString(R.string.to_set), { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)) }).show()
@@ -166,3 +190,4 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
         }
     }
 }
+

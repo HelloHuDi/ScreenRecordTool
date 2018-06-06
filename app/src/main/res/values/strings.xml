@@ -2,6 +2,10 @@
     <string name="app_name">ScreenRecordTool</string>
     <string name="to_set">去设置</string>
     <string name="need_permission">需要取得权限以使用悬浮窗</string>
+    <string name="transform_success">GIF图片转换成功</string>
+    <string name="look_look">去看看</string>
+    <string name="transforming">GIF格式正在转换中,请稍候</string>
+    <string name="transform_failed">GIF图片转换失败</string>
     <!-- audio channel counts-->
     <string-array name="audio_channels">
         <item>1</item>

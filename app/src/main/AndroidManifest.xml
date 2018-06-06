@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.hd.screenrecordtool">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -8,17 +9,19 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".service.MainService"
+        <service
+            android:name=".service.MainService"
             android:exported="false"/>
+
         <activity
             android:name=".view.SplashActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -28,12 +31,16 @@
         </activity>
         <activity
             android:name=".view.MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".view.PlayActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".view.ConfigActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".view.GifShowActivity"
             android:screenOrientation="portrait"/>
 
         <provider
@@ -43,8 +50,9 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                android:resource="@xml/file_paths"/>
         </provider>
+
     </application>
 
 </manifest>

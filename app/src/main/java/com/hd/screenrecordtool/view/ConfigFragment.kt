@@ -17,19 +17,19 @@ import java.util.*
  */
 class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
 
-    private var help: ConfigHelp? = null
+    private lateinit var help: ConfigHelp
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.capture_config)
         help = ConfigHelp(activity)
-        setContent(findPref(ConfigHelp.VIDEO_ENCODER), Utils.findAllVideoCodecName(), help!!.videoEncoder)
-        setContent(findPref(ConfigHelp.VIDEO_BITRATE), resources.getStringArray(R.array.video_bitrates), help!!.videoBitrate)
-        setContent(findPref(ConfigHelp.FPS), resources.getStringArray(R.array.video_framerates), help!!.fps)
-        setContent(findPref(ConfigHelp.IFRAME_INTERVAL), resources.getStringArray(R.array.iframeintervals), help!!.iFrameInterval)
+        setContent(findPref(ConfigHelp.VIDEO_ENCODER), Utils.findAllVideoCodecName(), help.videoEncoder)
+        setContent(findPref(ConfigHelp.VIDEO_BITRATE), resources.getStringArray(R.array.video_bitrates), help.videoBitrate)
+        setContent(findPref(ConfigHelp.FPS), resources.getStringArray(R.array.video_framerates), help.fps)
+        setContent(findPref(ConfigHelp.IFRAME_INTERVAL), resources.getStringArray(R.array.iframeintervals), help.iFrameInterval)
         setVideoProfile()
-        setContent(findPref(ConfigHelp.AUDIO_ENCODER), Utils.findAllAudioCodecName(), help!!.audioEncoder)
-        setContent(findPref(ConfigHelp.CHANNELS), resources.getStringArray(R.array.audio_channels), help!!.channels)
+        setContent(findPref(ConfigHelp.AUDIO_ENCODER), Utils.findAllAudioCodecName(), help.audioEncoder)
+        setContent(findPref(ConfigHelp.CHANNELS), resources.getStringArray(R.array.audio_channels), help.channels)
         setAudioPar()
         findPref<Preference>("capture").setOnPreferenceClickListener {
             startActivity(Intent(activity, MainActivity::class.java))
@@ -39,14 +39,14 @@ class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListen
     }
 
     private fun setAudioPar() {
-        val capabilities = Utils.findAudioCodecCapabilities(help!!.audioEncoder)
+        val capabilities = Utils.findAudioCodecCapabilities(help.audioEncoder)
 
         val audioSampleRates = capabilities.audioCapabilities.supportedSampleRates
         val sampleRatesArray = arrayOfNulls<String>(audioSampleRates.size)
         for (i in audioSampleRates.indices) {
             sampleRatesArray[i] = audioSampleRates[i].toString()
         }
-        setContent(findPref(ConfigHelp.SAMPLE_RATE), sampleRatesArray, help!!.sampleRate)
+        setContent(findPref(ConfigHelp.SAMPLE_RATE), sampleRatesArray, help.sampleRate)
 
         //audio bitrate
         val audioBitrateRange = capabilities.audioCapabilities.bitrateRange
@@ -60,19 +60,19 @@ class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListen
         }
         rates.add(upper.toString())
         val bitrateArray = arrayOfNulls<String>(rates.size)
-        setContent(findPref(ConfigHelp.AUDIO_BITRATE), rates.toTypedArray(), help!!.audioBitrate)
+        setContent(findPref(ConfigHelp.AUDIO_BITRATE), rates.toTypedArray(), help.audioBitrate)
 
         //audio profile
-        setContent(findPref(ConfigHelp.AAC_PROFILE), Utils.aacProfiles(), help!!.aacProfile)
+        setContent(findPref(ConfigHelp.AAC_PROFILE), Utils.aacProfiles(), help.aacProfile)
     }
 
     private fun setVideoProfile() {
         val levels = ArrayList<String>()
-        for (level in Utils.findVideoProfileLevel(help!!.videoEncoder)) {
+        for (level in Utils.findVideoProfileLevel(help.videoEncoder)) {
             levels.add(Utils.avcProfileLevelToString(level))
         }
         val levelsArray = arrayOfNulls<String>(levels.size)
-        setContent(findPref(ConfigHelp.AVC_PROFILE), levels.toTypedArray(), help!!.avcProfile)
+        setContent(findPref(ConfigHelp.AVC_PROFILE), levels.toTypedArray(), help.avcProfile)
     }
 
     private fun setContent(listPreference: ListPreference, entries: Array<String?>, content: Any) {

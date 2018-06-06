@@ -42,11 +42,11 @@ class ConfigHelp(context: Context) {
         get() = sp.getString(AAC_PROFILE, "")
 
     fun useDefaultAudioConfig(): Boolean {
-        return sp.getBoolean("defaultAudioConfig", false)
+        return sp.getBoolean(DEFAULT_VIDEO_CONFIG, false)
     }
 
     fun useDefaultVideoConfig(): Boolean {
-        return sp.getBoolean("defaultVideoConfig", false)
+        return sp.getBoolean(DEFAULT_AUDIO_CONFIG, true)
     }
 
     fun hasAudio(): Boolean {
@@ -66,5 +66,8 @@ class ConfigHelp(context: Context) {
         const val SAMPLE_RATE = "sample_rate"
         const val AUDIO_BITRATE = "audio_bitrate"
         const val AAC_PROFILE = "aac_profile"
+        const val VIDEO_FILE = "video_file"
+        const val DEFAULT_VIDEO_CONFIG = "defaultVideoConfig"
+        const val DEFAULT_AUDIO_CONFIG = "defaultAudioConfig"
     }
 }

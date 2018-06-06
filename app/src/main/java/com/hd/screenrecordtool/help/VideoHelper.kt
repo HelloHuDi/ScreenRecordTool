@@ -1,14 +1,20 @@
 package com.hd.screenrecordtool.help
 
 import android.media.MediaMetadataRetriever
+import android.os.Environment
+import android.os.SystemClock
 import android.text.format.DateUtils
 import java.io.File
 import java.text.DecimalFormat
+import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * Created by hd on 2018/6/4 .
  */
 object VideoHelper {
+
+    val MAIN_FILE = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "screen_capture")
 
     fun prepareBean(file: File): ArrayList<VideoBean> {
         val videoBeanArray = arrayListOf<VideoBean>()
@@ -17,10 +23,12 @@ object VideoHelper {
             for (path in fileList) {
                 val videoBean = VideoBean()
                 val childFile = File(file, path)
-                videoBean.filePath = childFile.path
-                videoBean.name = childFile.name
-                videoBean.size = formatFileSize(childFile.length())
-                videoBeanArray.add(videoBean)
+                if (childFile.isFile) {
+                    videoBean.filePath = childFile.path
+                    videoBean.name = childFile.name
+                    videoBean.size = formatFileSize(childFile.length())
+                    videoBeanArray.add(videoBean)
+                }
             }
         }
         return videoBeanArray
@@ -49,9 +57,25 @@ object VideoHelper {
         }
     }
 
-    fun transformGif(path: String?) {
-        val file = File(path)
-        //"库文件待完成"
+    inline fun transformGif(path: String?, running: () -> Unit, crossinline success: (path: String) -> Unit, crossinline failed: () -> Unit) {
+        running()
+        var file = File(path)
+        val gifFileName = file.name.split(".")[0].trim() + ".gif"
+        thread {
+            //test
+            file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "gif")
+            if (!file.exists() && !file.mkdir()) {
+                failed()
+            } else {
+                file = File(file, gifFileName)
+                SystemClock.sleep(5000)
+                if (!file.exists() && !file.mkdir()) {
+                    failed()
+                } else {
+                    success(file.absolutePath)
+                }
+            }
+        }
     }
 
     private fun formatFileSize(fileS: Long): String {
