@@ -6,6 +6,12 @@
     <string name="look_look">去看看</string>
     <string name="transforming">GIF格式正在转换中,请稍候</string>
     <string name="transform_failed">GIF图片转换失败</string>
+    <string name="start">开始</string>
+    <string name="stop">停止</string>
+    <string name="sign_out_record">退出录制</string>
+    <string name="record_video">视频录制%s</string>
+    <string name="complete">完成</string>
+    <string name="failed">失败</string>
     <!-- audio channel counts-->
     <string-array name="audio_channels">
         <item>1</item>

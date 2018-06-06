@@ -6,11 +6,15 @@ import kotlinx.android.synthetic.main.activity_play.*
 
 class PlayActivity : BaseActivity() {
 
+    companion object {
+        const val PLAY_PATH="video_path"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play)
         try {
-            val path = intent.getStringExtra("video_path")
+            val path = intent.getStringExtra(PLAY_PATH)
             videoView.setLoopPlay(false)
             videoView.setPlayPath(path)
             videoView.start()
@@ -21,11 +25,11 @@ class PlayActivity : BaseActivity() {
     }
 
     override fun onStop() {
-        super.onStop()
         try {
             videoView.stop()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        super.onStop()
     }
 }

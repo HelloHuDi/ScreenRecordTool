@@ -16,13 +16,17 @@ import android.support.design.widget.Snackbar
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.bumptech.glide.Glide
+import com.hd.screencapture.callback.ScreenCaptureCallback
+import com.hd.screencapture.help.ScreenCaptureState
 import com.hd.screenrecordtool.R
 import com.hd.screenrecordtool.help.VideoBean
 import com.hd.screenrecordtool.help.VideoHelper
@@ -32,12 +36,12 @@ import com.zhy.adapter.recyclerview.CommonAdapter
 import com.zhy.adapter.recyclerview.base.ViewHolder
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 
 @TargetApi(Build.VERSION_CODES.M)
-class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
+class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, ScreenCaptureCallback {
 
     private val TAG = MainActivity::class.java.simpleName
 
@@ -47,8 +51,13 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        initCapture()
+        initView()
         initVideoList()
+    }
+
+    override fun onDestroy() {
+        stopService()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
@@ -65,6 +74,29 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
         }
     }
 
+    override fun captureState(state: ScreenCaptureState?) {
+        Log.d(TAG, "record state ：$state")
+        runOnUiThread {
+            val status = when (state) {
+                ScreenCaptureState.COMPLETED ->{
+                    refreshDataAgain()
+                    resources.getString(R.string.complete)
+                }
+                ScreenCaptureState.FAILED -> resources.getString(R.string.failed)
+                else -> return@runOnUiThread
+            }
+            Toast.makeText(this, String.format(resources.getString(R.string.record_video), status), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun captureTime(time: Long) {
+        Log.d(TAG, "record time ：$time+${DateUtils.formatElapsedTime(time)}")
+    }
+
+    override fun prepareRecord() {
+        moveTaskToBack(true)
+    }
+
     override fun startRecord() {
         mainPresenter.startCapture()
     }
@@ -74,7 +106,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
     }
 
     override fun cancelRecord() {
-        stopService(Intent(this@MainActivity, MainService::class.java))
+        stopService()
     }
 
     fun setConfig(view: View) {
@@ -90,12 +122,18 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             val mainService = (service as MainService.MainBinder).service
             mainService.addCallback(callback)
+            mainService.prepare()
         }
     }
 
+    private val loadCompleted = AtomicBoolean(false)
+
+    private lateinit var beanList: ArrayList<VideoBean>
+
     private fun initVideoList() {
+        loadCompleted.set(false)
         rvVideo.layoutManager = GridLayoutManager(this, 2)
-        val beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
+        beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
                 if (holder != null && t != null) {
@@ -117,13 +155,23 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
                 }
             }
         }
-        thread { VideoHelper.formatBean(beanList) { runOnUiThread { rvVideo.adapter.notifyDataSetChanged() } } }
+        thread {
+            VideoHelper.formatBean(beanList) { runOnUiThread { refreshAdapter() } }
+        }
+    }
+
+    private fun refreshAdapter() {
+        rvVideo.adapter.notifyDataSetChanged()
+        refresh.isRefreshing = false
+        loadCompleted.set(true)
     }
 
     private fun CommonAdapter<VideoBean>.reportAdapter(t: VideoBean, beanList: ArrayList<VideoBean>, position: Int) {
-        VideoHelper.deleteFile(t.filePath)
-        beanList.remove(t)
-        notifyItemRemoved(position)
+        if(loadCompleted.get()) {
+            VideoHelper.deleteFile(t.filePath)
+            beanList.remove(t)
+            notifyItemRemoved(position)
+        }
     }
 
     @SuppressLint("ResourceAsColor")
@@ -139,12 +187,19 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
         }, { path ->
             //success
             dialog?.dismiss()
-            Snackbar.make(coordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG).setAction(resources.getString(R.string.look_look), { seeSee(path) }).show()
+            notifyRefresh(path)
+            Snackbar.make(coordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG)
+                    .setAction(resources.getString(R.string.look_look), { seeSee(path) }).show()
         }, {
             //failed
             dialog?.dismiss()
             Snackbar.make(coordinator, resources.getString(R.string.transform_failed), Snackbar.LENGTH_SHORT).show()
         })
+    }
+
+    private fun notifyRefresh(path: String) {
+        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).addCategory(Intent.CATEGORY_DEFAULT).setData(Uri.parse(path))
+        sendBroadcast(intent)
     }
 
     private fun seeSee(path: String) {
@@ -158,7 +213,8 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
             val intent = Intent()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                val contentUri = FileProvider.getUriForFile(this, applicationContext.packageName + ".FileProvider", File(t.filePath))
+                val contentUri = FileProvider.getUriForFile(this,
+                        applicationContext.packageName + ".FileProvider", File(t.filePath))
                 intent.setDataAndType(contentUri, "video/*")
             } else {
                 val uri = Uri.parse(/*"file://" +*/ t.filePath)
@@ -166,28 +222,58 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback {
                 intent.setDataAndType(uri, "video/*")
             }
             startActivity(intent)
-            Log.d(TAG, "use system player ：" + t.filePath)
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.d(TAG, "use system player error ：$e")
             val intent = Intent(this@MainActivity, PlayActivity::class.java)
-            intent.putExtra("video_path", t.filePath)
+            intent.putExtra(PlayActivity.PLAY_PATH, t.filePath)
             startActivity(intent)
-            Log.d(TAG, "use default player ：" + t.filePath)
         }
     }
 
-    private fun initCapture() {
+    @SuppressLint("ResourceAsColor")
+    private fun initView() {
+        refresh.setColorSchemeResources(R.color.colorAccent)
+        refresh.setOnRefreshListener {
+            if (loadCompleted.get()) {
+                refreshDataAgain()
+            } else {
+                refresh.isRefreshing = false
+            }
+        }
         fab.setOnClickListener { view ->
             if (Settings.canDrawOverlays(this@MainActivity)) {
-                val intent = Intent(this@MainActivity, MainService::class.java)
-                bindService(intent, ConnectionService(this), Context.BIND_AUTO_CREATE)
-                moveTaskToBack(true)
+                startService()
             } else {
                 Snackbar.make(view, resources.getString(R.string.need_permission), Snackbar.LENGTH_LONG)//
                         .setAction(resources.getString(R.string.to_set), { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)) }).show()
             }
         }
     }
+
+    private fun refreshDataAgain() {
+        loadCompleted.set(false)
+        thread {
+            VideoHelper.formatBean(VideoHelper.MAIN_FILE) { beans ->
+                runOnUiThread {
+                    this@MainActivity.beanList.clear()
+                    this@MainActivity.beanList.addAll(beans)
+                    refreshAdapter()
+                }
+            }
+        }
+    }
+
+    private val connectionService: ConnectionService by lazy { ConnectionService(this) }
+
+    private fun startService() {
+        val intent = Intent(this@MainActivity, MainService::class.java)
+        bindService(intent, connectionService, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun stopService() {
+        unbindService(connectionService)
+        Toast.makeText(this, resources.getString(R.string.sign_out_record), Toast.LENGTH_SHORT).show()
+    }
+
 }
 

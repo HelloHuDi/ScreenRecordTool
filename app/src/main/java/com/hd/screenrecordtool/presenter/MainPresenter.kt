@@ -4,12 +4,11 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import com.hd.screencapture.ScreenCapture
-import com.hd.screencapture.callback.ScreenCaptureStreamCallback
+import com.hd.screencapture.callback.ScreenCaptureCallback
 import com.hd.screencapture.config.AudioConfig
 import com.hd.screencapture.config.ScreenCaptureConfig
 import com.hd.screencapture.config.VideoConfig
 import com.hd.screencapture.help.Utils
-import com.hd.screenrecordtool.BuildConfig
 import com.hd.screenrecordtool.help.ConfigHelp
 import com.hd.screenrecordtool.help.VideoHelper
 import java.io.File
@@ -54,12 +53,11 @@ class MainPresenter internal constructor(private val activity: AppCompatActivity
             audioConfig = if (help.useDefaultAudioConfig()) AudioConfig.initDefaultConfig() else initAudioConfig()
         }
         captureConfig = ScreenCaptureConfig.Builder()//
-                .setAllowLog(BuildConfig.DEBUG)//
+                .setAllowLog(false/*BuildConfig.DEBUG*/)//
                 .setRelevanceLifecycle(false)
                 .setFile(setSelfFile()).setVideoConfig(videoConfig)//
-                //if it is not set, then the voice will not be supported
                 .setAudioConfig(audioConfig)//
-                .setCaptureCallback(activity as ScreenCaptureStreamCallback)//
+                .setCaptureCallback(activity as ScreenCaptureCallback)//
                 .setAutoMoveTaskToBack(true)//
                 .create()//
         Log.i("tag", "current using config ===>video config :" + videoConfig.toString()//

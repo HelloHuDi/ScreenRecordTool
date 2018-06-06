@@ -9,6 +9,7 @@ import java.text.DecimalFormat
 import java.util.*
 import kotlin.concurrent.thread
 
+
 /**
  * Created by hd on 2018/6/4 .
  */
@@ -23,7 +24,7 @@ object VideoHelper {
             for (path in fileList) {
                 val videoBean = VideoBean()
                 val childFile = File(file, path)
-                if (childFile.isFile) {
+                if (childFile.isFile && file.canRead()) {
                     videoBean.filePath = childFile.path
                     videoBean.name = childFile.name
                     videoBean.size = formatFileSize(childFile.length())
@@ -50,6 +51,11 @@ object VideoHelper {
         }
     }
 
+    inline fun formatBean(file: File, notify: (beans: ArrayList<VideoBean>) -> Unit) {
+        val beanList = prepareBean(file)
+        formatBean(beanList) { notify(beanList) }
+    }
+
     fun deleteFile(path: String?) {
         val file = File(path)
         if (file.exists() && file.isFile) {
@@ -57,17 +63,18 @@ object VideoHelper {
         }
     }
 
-    inline fun transformGif(path: String?, running: () -> Unit, crossinline success: (path: String) -> Unit, crossinline failed: () -> Unit) {
+    inline fun transformGif(path: String?, running: () -> Unit,
+                            crossinline success: (path: String) -> Unit, crossinline failed: () -> Unit) {
         running()
         var file = File(path)
         val gifFileName = file.name.split(".")[0].trim() + ".gif"
         thread {
-            //test
             file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "gif")
             if (!file.exists() && !file.mkdir()) {
                 failed()
             } else {
                 file = File(file, gifFileName)
+                //test
                 SystemClock.sleep(5000)
                 if (!file.exists() && !file.mkdir()) {
                     failed()
@@ -93,6 +100,4 @@ object VideoHelper {
         }
         return fileSizeString
     }
-
-
 }

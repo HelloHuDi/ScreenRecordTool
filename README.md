@@ -5,6 +5,10 @@
 
 ## provide screen record tool , and the MP4 files that support the recording are converted to GIF
 
+## The screen recording function comes from [ScreenCapture][1]
+
+## 【**unfinished**】The GIF transforming function comes from [MP4TransferToGif][2]
+
 ## screenshot
 
 <img src="art/main.png" width="300px" height="500px"/>
@@ -22,3 +26,6 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+[1]: https://github.com/HelloHuDi/ScreenCapture
+[2]: https://github.com/HelloHuDi/MP4TransferToGif

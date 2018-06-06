@@ -15,10 +15,18 @@ class SplashActivity : BaseActivity(), SimpleSplashFinishCallback, EasyPermissio
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-        val simpleConfig = SimpleConfig(this)
-        simpleConfig.callback = this
-        screen.addConfig(simpleConfig)
-        screen.start()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (hasPermission()) {
+            goMain()
+        } else {
+            val simpleConfig = SimpleConfig(this)
+            simpleConfig.callback = this
+            screen.addConfig(simpleConfig)
+            screen.start()
+        }
     }
 
     override fun loadFinish() {
@@ -33,7 +41,7 @@ class SplashActivity : BaseActivity(), SimpleSplashFinishCallback, EasyPermissio
     private val recordAudio = Manifest.permission.RECORD_AUDIO
 
     private fun requestPermission() {
-        if (EasyPermissions.hasPermissions(this, writeExternalStorage, readExternalStorage, recordAudio)) {
+        if (hasPermission()) {
             goMain()
         } else {
             EasyPermissions.requestPermissions(this, "You need to save the video to the local",
@@ -65,8 +73,10 @@ class SplashActivity : BaseActivity(), SimpleSplashFinishCallback, EasyPermissio
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (EasyPermissions.hasPermissions(this, writeExternalStorage, readExternalStorage, recordAudio)) {
+        if (hasPermission()) {
             goMain()
         }
     }
+
+    private fun hasPermission() = EasyPermissions.hasPermissions(this, writeExternalStorage, readExternalStorage, recordAudio)
 }

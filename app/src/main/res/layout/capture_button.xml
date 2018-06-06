@@ -1,20 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
-              android:layout_height="120px"
-              android:orientation="horizontal">
+                android:layout_width="wrap_content"
+                android:layout_height="120px"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_record_button"
+                android:padding="10px">
 
-    <Button
-        android:id="@+id/ibCapture"
-        android:layout_width="120px"
+    <ImageButton
+        android:id="@+id/btnControl"
+        android:layout_width="110px"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:clickable="true"
         android:background="@drawable/start_capture"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tvHint"
+        android:layout_width="110px"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:layout_marginLeft="10px"
-        android:text="00:00"/>
+        android:gravity="center"
+        android:text="@string/start"
+        android:textColor="@android:color/white"/>
+
+    <View
+        style="@style/video_item_view_style"/>
+
+    <Button
+        android:id="@+id/btnStopService"
+        android:layout_width="50px"
+        android:layout_height="50px"
+        android:layout_marginLeft="15px"
+        android:background="@drawable/stop"/>
 
 </LinearLayout>
