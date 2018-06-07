@@ -39,11 +39,15 @@ object VideoHelper {
         val media = MediaMetadataRetriever()
         try {
             for (bean in beans) {
-                media.setDataSource(bean.filePath)
-                var duration = java.lang.Long.parseLong(media.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))
-                duration /= 1000
-                bean.duration = DateUtils.formatElapsedTime(duration)
-                bean.bitmap = media.frameAtTime
+                try {
+                    media.setDataSource(bean.filePath)
+                    var duration = java.lang.Long.parseLong(media.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))
+                    duration /= 1000
+                    bean.duration = DateUtils.formatElapsedTime(duration)
+                    bean.bitmap = media.frameAtTime
+                } catch (e: Exception) {
+                    continue
+                }
             }
             notify()
         } finally {

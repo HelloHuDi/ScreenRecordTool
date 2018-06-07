@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
         Log.d(TAG, "record state ：$state")
         runOnUiThread {
             val status = when (state) {
-                ScreenCaptureState.COMPLETED ->{
+                ScreenCaptureState.COMPLETED -> {
                     refreshDataAgain()
                     resources.getString(R.string.complete)
                 }
@@ -113,13 +113,17 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
         startActivity(Intent(this, ConfigActivity::class.java))
     }
 
+    private var serviceBind = false
+
     internal inner class ConnectionService(private val callback: MainService.ScreenRecordCallback) : ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName) {
+            serviceBind = false
             stopRecord()
         }
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            serviceBind = true
             val mainService = (service as MainService.MainBinder).service
             mainService.addCallback(callback)
             mainService.prepare()
@@ -167,7 +171,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     }
 
     private fun CommonAdapter<VideoBean>.reportAdapter(t: VideoBean, beanList: ArrayList<VideoBean>, position: Int) {
-        if(loadCompleted.get()) {
+        if (loadCompleted.get()) {
             VideoHelper.deleteFile(t.filePath)
             beanList.remove(t)
             notifyItemRemoved(position)
@@ -271,8 +275,10 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     }
 
     private fun stopService() {
-        unbindService(connectionService)
-        Toast.makeText(this, resources.getString(R.string.sign_out_record), Toast.LENGTH_SHORT).show()
+        if (serviceBind) {
+            unbindService(connectionService)
+            Toast.makeText(this, resources.getString(R.string.sign_out_record), Toast.LENGTH_SHORT).show()
+        }
     }
 
 }
