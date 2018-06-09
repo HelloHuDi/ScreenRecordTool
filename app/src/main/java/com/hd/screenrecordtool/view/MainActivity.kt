@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
 
     private fun initVideoList() {
         loadCompleted.set(false)
-        rvVideo.layoutManager = GridLayoutManager(this, 2)
+        rvVideo.layoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager?
         beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
