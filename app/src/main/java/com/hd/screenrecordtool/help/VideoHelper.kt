@@ -55,9 +55,30 @@ object VideoHelper {
         }
     }
 
-    inline fun formatBean(file: File, notify: (beans: ArrayList<VideoBean>) -> Unit) {
+    inline fun formatBean(file: File, beans: ArrayList<VideoBean>, notifySize: (beans: ArrayList<VideoBean>) -> Unit,
+                          crossinline notifyBitmap: (beans: ArrayList<VideoBean>) -> Unit) {
         val beanList = prepareBean(file)
-        formatBean(beanList) { notify(beanList) }
+        if (beanList.size == beans.size) {
+            var same = false
+            for (newBean in beanList) {
+                same = false
+                for (oldBean in beanList) {
+                    same = (oldBean.name == newBean.name) && (oldBean.filePath == newBean.filePath)
+                            && (oldBean.size == newBean.size)
+                    if (same) break
+                }
+                if (!same) break
+            }
+            if (same) {
+                notifySize(beans)
+            } else {
+                notifySize(beanList)
+                formatBean(beanList) { notifyBitmap(beanList) }
+            }
+        } else {
+            notifySize(beanList)
+            formatBean(beanList) { notifyBitmap(beanList) }
+        }
     }
 
     fun deleteFile(path: String?) {

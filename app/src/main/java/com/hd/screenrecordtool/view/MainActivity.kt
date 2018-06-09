@@ -139,6 +139,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
         loadCompleted.set(false)
         rvVideo.layoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager?
         beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
+        if (beanList.size == 0) reportFileSizeState(0)
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
                 if (holder != null && t != null) {
@@ -165,8 +166,8 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
         }
     }
 
-    private fun refreshAdapter() {
-        rvVideo.adapter.notifyDataSetChanged()
+    private fun refreshAdapter(needRefresh: Boolean = true) {
+        if (needRefresh) rvVideo.adapter.notifyDataSetChanged()
         refresh.isRefreshing = false
         loadCompleted.set(true)
     }
@@ -176,6 +177,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             VideoHelper.deleteFile(t.filePath)
             beanList.remove(t)
             notifyItemRemoved(position)
+            reportFileSizeState(1, false)
         }
     }
 
@@ -250,7 +252,9 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
                 startService()
             } else {
                 Snackbar.make(view, resources.getString(R.string.need_permission), Snackbar.LENGTH_LONG)//
-                        .setAction(resources.getString(R.string.to_set), { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)) }).show()
+                        .setAction(resources.getString(R.string.to_set), {
+                            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                        }).show()
             }
         }
     }
@@ -258,14 +262,32 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun refreshDataAgain() {
         loadCompleted.set(false)
         thread {
-            VideoHelper.formatBean(VideoHelper.MAIN_FILE) { beans ->
+            VideoHelper.formatBean(VideoHelper.MAIN_FILE, beanList, { beans ->
+                runOnUiThread {
+                    if (beanList != beans) {
+                        val changeSize = beans.size - beanList.size
+                        reportFileSizeState(changeSize)
+                        this@MainActivity.beanList.clear()
+                        this@MainActivity.beanList.addAll(beans)
+                        refreshAdapter()
+                    } else {
+                        refreshAdapter(false)
+                    }
+                }
+            }, { beans ->
                 runOnUiThread {
                     this@MainActivity.beanList.clear()
                     this@MainActivity.beanList.addAll(beans)
                     refreshAdapter()
                 }
-            }
+            })
         }
+    }
+
+    private fun reportFileSizeState(size: Int = 1, add: Boolean = size > 0) {
+        Snackbar.make(coordinator, if (size == 0) resources.getString(R.string.no_video_file) else
+            String.format(resources.getString(if (add) R.string.add_video_file else R.string.delete_video_file),
+                    Math.abs(size)), Snackbar.LENGTH_SHORT).show()
     }
 
     private val connectionService: ConnectionService by lazy { ConnectionService(this) }
