@@ -7,7 +7,7 @@
 
 ## The screen recording function comes from [ScreenCapture][1]
 
-## 【**unfinished**】The GIF transforming function comes from [MP4TransferToGif][2]
+## The GIF transforming function comes from [MP4TransferToGif][2]
 
 ## screenshot
 

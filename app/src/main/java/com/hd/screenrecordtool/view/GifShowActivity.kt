@@ -9,13 +9,15 @@ import kotlinx.android.synthetic.main.activity_gif_show.*
 class GifShowActivity : BaseActivity() {
 
     companion object {
-        const val GIF_TAG="screen_record_gif"
+        const val GIF_TAG = "screen_record_gif"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gif_show)
-        val op= RequestOptions().placeholder(R.drawable.record).error(R.drawable.load_error)
-        Glide.with(this).asGif().apply(op).load(intent.getStringExtra(GIF_TAG)).into(imageView)
+        val gifPath = intent.getStringExtra(GIF_TAG)
+        val op = RequestOptions().placeholder(R.drawable.record).error(R.drawable.load_error)
+        Glide.with(this).asGif().apply(op).load(gifPath).into(imageView)
+        tvGifPath.text = gifPath
     }
 }

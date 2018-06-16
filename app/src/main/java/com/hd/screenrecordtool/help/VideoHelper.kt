@@ -1,11 +1,11 @@
 package com.hd.screenrecordtool.help
 
+import android.annotation.SuppressLint
 import android.media.MediaMetadataRetriever
 import android.os.Environment
-import android.os.SystemClock
 import android.text.format.DateUtils
+import com.hd.transfer.TransferGif
 import java.io.File
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -13,9 +13,9 @@ import kotlin.concurrent.thread
 /**
  * Created by hd on 2018/6/4 .
  */
-object VideoHelper {
+object VideoHelper : CaptureHelper() {
 
-    val MAIN_FILE = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "screen_capture")
+    val VIDEO_FILE = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "screen_capture")
 
     fun prepareBean(file: File): ArrayList<VideoBean> {
         val videoBeanArray = arrayListOf<VideoBean>()
@@ -81,15 +81,8 @@ object VideoHelper {
         }
     }
 
-    fun deleteFile(path: String?) {
-        val file = File(path)
-        if (file.exists() && file.isFile) {
-            file.delete()
-        }
-    }
-
-    inline fun transformGif(path: String?, running: () -> Unit,
-                            crossinline success: (path: String) -> Unit, crossinline failed: () -> Unit) {
+    @SuppressLint("MissingPermission")
+    inline fun transformGif(path: String?, running: () -> Unit, crossinline success: (path: String) -> Unit, crossinline failed: () -> Unit) {
         running()
         var file = File(path)
         val gifFileName = file.name.split(".")[0].trim() + ".gif"
@@ -98,31 +91,15 @@ object VideoHelper {
             if (!file.exists() && !file.mkdir()) {
                 failed()
             } else {
-                file = File(file, gifFileName)
-                //test
-                SystemClock.sleep(5000)
-                if (!file.exists() && !file.mkdir()) {
-                    failed()
+                //val palettePath = File(file, "palette.jpeg").absolutePath
+                val outputGifPath = File(file, gifFileName).absolutePath
+                val completed = TransferGif.transfer(path!!, outputGifPath)
+                if (completed) {
+                    success(outputGifPath)
                 } else {
-                    success(file.absolutePath)
+                    failed()
                 }
             }
         }
-    }
-
-    private fun formatFileSize(fileS: Long): String {
-        val df = DecimalFormat("#.00")
-        val fileSizeString: String
-        val wrongSize = "0B"
-        if (fileS == 0L) {
-            return wrongSize
-        }
-        fileSizeString = when {
-            fileS < 1024 -> df.format(fileS.toDouble()) + "B"
-            fileS < 1048576 -> df.format(fileS.toDouble() / 1024) + "K"
-            fileS < 1073741824 -> df.format(fileS.toDouble() / 1048576) + "M"
-            else -> df.format(fileS.toDouble() / 1073741824) + "G"
-        }
-        return fileSizeString
     }
 }

@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">ScreenRecordTool</string>
     <string name="to_set">去设置</string>
-    <string name="add_video_file">新增了%d份视频文件</string>
-    <string name="delete_video_file">删除了%d份视频文件</string>
-    <string name="no_video_file">暂无视频文件</string>
+    <string name="add_video_file">新增了%d份文件</string>
+    <string name="delete_video_file">删除了%d份文件</string>
+    <string name="no_video_file">暂无文件</string>
     <string name="need_permission">需要取得权限以使用悬浮窗</string>
     <string name="transform_success">GIF图片转换成功</string>
     <string name="look_look">去看看</string>

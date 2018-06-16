@@ -87,8 +87,8 @@ class MainPresenter internal constructor(private val activity: AppCompatActivity
     }
 
     private fun setSelfFile(): File? {
-        if (!VideoHelper.MAIN_FILE.exists() && !VideoHelper.MAIN_FILE.mkdir())
+        if (!VideoHelper.VIDEO_FILE.exists() && !VideoHelper.VIDEO_FILE.mkdir())
             return null
-        return File(VideoHelper.MAIN_FILE, "screen_capture_" + SimpleDateFormat("yyyyMMdd-HH-mm-ss", Locale.US).format(Date()) + ".mp4")
+        return File(VideoHelper.VIDEO_FILE, "screen_capture_" + SimpleDateFormat("yyyyMMdd-HH-mm-ss", Locale.US).format(Date()) + ".mp4")
     }
 }

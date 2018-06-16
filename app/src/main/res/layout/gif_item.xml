@@ -16,28 +16,16 @@
         android:layout_height="match_parent"
         android:background="#CCCCCC">
 
-        <RelativeLayout
+        <ImageView
+            android:id="@+id/ivGif"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/ivBgFrame"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/record"/>
-
-            <ImageView
-                android:id="@+id/ivFrame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:scaleType="fitXY"/>
-        </RelativeLayout>
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"/>
 
         <LinearLayout
+            android:id="@+id/linContent"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="100dp"
             android:layout_alignParentBottom="true"
             android:alpha="0.8"
             android:background="@color/colorPrimary"
@@ -51,18 +39,30 @@
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tvDuration"
-                    style="@style/video_item_textview_style"
-                    android:text="00:00"/>
-
-                <View style="@style/video_item_view_style"/>
-
-                <TextView
-                    android:id="@+id/tvSize"
-                    style="@style/video_item_textview_style"
-                    android:text="0B"/>
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/tvGifPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center|start"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:singleLine="true"
+                    android:textColor="@color/colorAccent"
+                    android:textIsSelectable="true"
+                    />
             </LinearLayout>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/tvGifSize"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:layout_gravity="center"
+                android:gravity="center|start"
+                android:textColor="@color/colorAccent"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,18 +84,7 @@
                 <RelativeLayout style="@style/video_item_relative_style">
 
                     <ImageButton
-                        android:id="@+id/btnTransform"
-                        style="@style/video_item_button_style"
-                        android:src="@drawable/gif"/>
-
-                </RelativeLayout>
-
-                <View style="@style/video_item_view_style"/>
-
-                <RelativeLayout style="@style/video_item_relative_style">
-
-                    <ImageButton
-                        android:id="@+id/btnPlay"
+                        android:id="@+id/btnShowGif"
                         style="@style/video_item_button_style"
                         android:src="@drawable/play"/>
 

@@ -114,6 +114,10 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
         startActivity(Intent(this, ConfigActivity::class.java))
     }
 
+    fun showGifLists(view: View) {
+        startActivity(Intent(this, GifListActivity::class.java))
+    }
+
     private var serviceBind = false
 
     internal inner class ConnectionService(private val callback: MainService.ScreenRecordCallback) : ServiceConnection {
@@ -138,8 +142,9 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun initVideoList() {
         loadCompleted.set(false)
         rvVideo.layoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager?
-        beanList = VideoHelper.prepareBean(VideoHelper.MAIN_FILE)
+        beanList = VideoHelper.prepareBean(VideoHelper.VIDEO_FILE)
         if (beanList.size == 0) reportFileSizeState(0)
+        updateVideoSize()
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
                 if (holder != null && t != null) {
@@ -178,7 +183,12 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             beanList.remove(t)
             notifyItemRemoved(position)
             reportFileSizeState(1, false)
+            updateVideoSize()
         }
+    }
+
+    private fun updateVideoSize() {
+        tvVideoSize.text=java.lang.String.valueOf(beanList.size)
     }
 
     @SuppressLint("ResourceAsColor")
@@ -262,13 +272,14 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun refreshDataAgain() {
         loadCompleted.set(false)
         thread {
-            VideoHelper.formatBean(VideoHelper.MAIN_FILE, beanList, { beans ->
+            VideoHelper.formatBean(VideoHelper.VIDEO_FILE, beanList, { beans ->
                 runOnUiThread {
                     if (beanList != beans) {
                         val changeSize = beans.size - beanList.size
                         reportFileSizeState(changeSize)
                         this@MainActivity.beanList.clear()
                         this@MainActivity.beanList.addAll(beans)
+                        updateVideoSize()
                         refreshAdapter()
                     } else {
                         refreshAdapter(false)

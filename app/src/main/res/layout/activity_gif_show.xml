@@ -4,13 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
     tools:context=".view.GifShowActivity">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:src="@drawable/record"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/tvGifPath"
         android:layout_centerInParent="true"
-        android:layout_height="wrap_content"/>
+        android:background="@android:color/darker_gray"
+        android:scaleType="fitXY"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tvGifPath"
+        android:layout_width="fill_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center|start"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:textColor="@android:color/black"
+        android:textIsSelectable="true"/>
 </RelativeLayout>
