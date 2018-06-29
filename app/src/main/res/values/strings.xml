@@ -6,6 +6,8 @@
     <string name="no_video_file">暂无文件</string>
     <string name="need_permission">需要取得权限以使用悬浮窗</string>
     <string name="transform_success">GIF图片转换成功</string>
+    <string name="transform_hide">视频文件越大，转换成gif的时间越长</string>
+    <string name="transform_continue">继续</string>
     <string name="look_look">去看看</string>
     <string name="transforming">GIF格式正在转换中,请稍候</string>
     <string name="transform_failed">GIF图片转换失败</string>
@@ -15,6 +17,8 @@
     <string name="record_video">视频录制%s</string>
     <string name="complete">完成</string>
     <string name="failed">失败</string>
+    <string name="file_can_not_read">当前文件夹不可读</string>
+    <string name="file_can_not_write">当前文件夹不可写</string>
     <!-- audio channel counts-->
     <string-array name="audio_channels">
         <item>1</item>

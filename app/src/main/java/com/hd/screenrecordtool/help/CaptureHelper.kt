@@ -32,4 +32,11 @@ open class CaptureHelper {
         }
         return fileSizeString
     }
+
+    /** 25M*/
+    private val maxOverflowSize = 25*1048576
+
+    protected fun formatOverflow(length: Long): Boolean {
+        return length>maxOverflowSize
+    }
 }

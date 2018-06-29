@@ -9,6 +9,12 @@
             android:title="START CAPTURE"/>
     </PreferenceCategory>
     <PreferenceCategory
+        android:title="choose save video path">
+        <Preference
+            android:key="choose_path"
+            android:title="CHOOSE PATH"/>
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="use default config">
         <CheckBoxPreference
             android:key="defaultVideoConfig"

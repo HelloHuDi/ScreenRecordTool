@@ -6,9 +6,12 @@ import android.preference.ListPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.text.TextUtils
+import android.widget.Toast
 import com.hd.screencapture.help.Utils
 import com.hd.screenrecordtool.R
+import com.hd.screenrecordtool.custom.FolderPickerDialog
 import com.hd.screenrecordtool.help.ConfigHelp
+import java.io.File
 import java.util.*
 
 
@@ -31,11 +34,43 @@ class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListen
         setContent(findPref(ConfigHelp.AUDIO_ENCODER), Utils.findAllAudioCodecName(), help.audioEncoder)
         setContent(findPref(ConfigHelp.CHANNELS), resources.getStringArray(R.array.audio_channels), help.channels)
         setAudioPar()
-        findPref<Preference>("capture").setOnPreferenceClickListener {
+        findPref<Preference>(ConfigHelp.CAPTURE).setOnPreferenceClickListener {
             startActivity(Intent(activity, MainActivity::class.java))
             activity.finish()
             false
         }
+        setChoosePath()
+    }
+
+    private fun setChoosePath() {
+        val choosePref = findPref<Preference>(ConfigHelp.SAVE_PATH)
+        choosePref.summary = help.saveVideoPath
+        choosePref.setOnPreferenceClickListener { preference ->
+            showDir(preference)
+            return@setOnPreferenceClickListener true
+        }
+    }
+
+    private fun showDir(preference: Preference) {
+        FolderPickerDialog(activity, File(help.saveVideoPath))
+                .setSelectedButton(android.R.string.ok, object : FolderPickerDialog.OnSelectedListener {
+                    override fun onSelected(path: String) {
+                        if (preference.summary == path) return
+                        val root = File(path)
+                        if (!root.canRead()) {
+                            Toast.makeText(activity, resources.getString(R.string.file_can_not_read), Toast.LENGTH_LONG).show()
+                        } else if (!root.canWrite()) {
+                            Toast.makeText(activity, resources.getString(R.string.file_can_not_write), Toast.LENGTH_LONG).show()
+                        }
+                        preference.summary = path
+                        val edit = preference.editor
+                        edit.putString(ConfigHelp.SAVE_PATH, path)
+                        edit.apply()
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show()
     }
 
     private fun setAudioPar() {
@@ -86,7 +121,7 @@ class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListen
             }
         }
         listPreference.summary = content.toString()
-        listPreference.onPreferenceChangeListener=this
+        listPreference.onPreferenceChangeListener = this
     }
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
@@ -102,7 +137,7 @@ class ConfigFragment : PreferenceFragment(), Preference.OnPreferenceChangeListen
         }
     }
 
-    private fun <T : Preference> findPref(key: CharSequence):T {
+    private fun <T : Preference> findPref(key: CharSequence): T {
         return findPreference(key) as T
     }
 }

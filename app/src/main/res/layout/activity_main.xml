@@ -44,17 +44,6 @@
                     android:background="@drawable/gif_file"
                     android:onClick="showGifLists"/>
 
-                <TextView
-                    android:id="@+id/tvVideoSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="0"
-                    android:gravity="center"
-                    android:textSize="20sp"
-                    android:textColor="@color/colorAccent"
-                    android:layout_marginEnd="20dp"/>
-
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
 

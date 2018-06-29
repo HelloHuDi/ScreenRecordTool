@@ -1,8 +1,14 @@
 package com.hd.screenrecordtool.help
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.support.v4.content.FileProvider
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.*
 
 
@@ -37,4 +43,22 @@ object GifHelper : CaptureHelper() {
         return gifBeanArray
     }
 
+    fun shareFile(context: Context, file: File) {
+        try {
+            val intent = Intent(Intent.ACTION_SEND)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val contentUri = FileProvider.getUriForFile(context,
+                        context.applicationContext.packageName + ".FileProvider",file)
+                intent.putExtra(Intent.EXTRA_STREAM,contentUri)
+            } else {
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
+            }
+            intent.type = "image/gif"
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            context.startActivity(Intent.createChooser(intent, ""))
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+    }
 }

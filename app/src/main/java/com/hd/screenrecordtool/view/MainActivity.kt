@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide
 import com.hd.screencapture.callback.ScreenCaptureCallback
 import com.hd.screencapture.help.ScreenCaptureState
 import com.hd.screenrecordtool.R
+import com.hd.screenrecordtool.help.ConfigHelp
 import com.hd.screenrecordtool.help.VideoBean
 import com.hd.screenrecordtool.help.VideoHelper
 import com.hd.screenrecordtool.presenter.MainPresenter
@@ -142,9 +143,8 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun initVideoList() {
         loadCompleted.set(false)
         rvVideo.layoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager?
-        beanList = VideoHelper.prepareBean(VideoHelper.VIDEO_FILE)
+        beanList = VideoHelper.prepareBean(File(ConfigHelp(this@MainActivity).saveVideoPath))
         if (beanList.size == 0) reportFileSizeState(0)
-        updateVideoSize()
         rvVideo.adapter = object : CommonAdapter<VideoBean>(this, R.layout.video_item, beanList) {
             override fun convert(holder: ViewHolder?, t: VideoBean?, position: Int) {
                 if (holder != null && t != null) {
@@ -183,16 +183,20 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             beanList.remove(t)
             notifyItemRemoved(position)
             reportFileSizeState(1, false)
-            updateVideoSize()
         }
     }
 
-    private fun updateVideoSize() {
-        tvVideoSize.text=java.lang.String.valueOf(beanList.size)
+    private fun transformGIF(t: VideoBean) {
+        if (t.overflowSize) {
+            Snackbar.make(coordinator, resources.getString(R.string.transform_hide), Snackbar.LENGTH_LONG)
+                    .setAction(resources.getString(R.string.transform_continue), { transfer(t) }).show()
+        } else {
+            transfer(t)
+        }
     }
 
     @SuppressLint("ResourceAsColor")
-    private fun transformGIF(t: VideoBean) {
+    private fun transfer(t: VideoBean) {
         var dialog: MaterialDialog? = null
         VideoHelper.transformGif(t.filePath, {
             //transforming
@@ -215,7 +219,8 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     }
 
     private fun notifyRefresh(path: String) {
-        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).addCategory(Intent.CATEGORY_DEFAULT).setData(Uri.parse(path))
+        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                .addCategory(Intent.CATEGORY_DEFAULT).setData(Uri.parse(path))
         sendBroadcast(intent)
     }
 
@@ -263,7 +268,9 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             } else {
                 Snackbar.make(view, resources.getString(R.string.need_permission), Snackbar.LENGTH_LONG)//
                         .setAction(resources.getString(R.string.to_set), {
-                            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:$packageName"))
+                            startActivity(intent)
                         }).show()
             }
         }
@@ -272,14 +279,13 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun refreshDataAgain() {
         loadCompleted.set(false)
         thread {
-            VideoHelper.formatBean(VideoHelper.VIDEO_FILE, beanList, { beans ->
+            VideoHelper.formatBean(File(ConfigHelp(this@MainActivity).saveVideoPath), beanList, { beans ->
                 runOnUiThread {
                     if (beanList != beans) {
                         val changeSize = beans.size - beanList.size
                         reportFileSizeState(changeSize)
                         this@MainActivity.beanList.clear()
                         this@MainActivity.beanList.addAll(beans)
-                        updateVideoSize()
                         refreshAdapter()
                     } else {
                         refreshAdapter(false)

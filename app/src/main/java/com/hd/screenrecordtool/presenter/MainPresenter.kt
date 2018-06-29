@@ -10,7 +10,6 @@ import com.hd.screencapture.config.ScreenCaptureConfig
 import com.hd.screencapture.config.VideoConfig
 import com.hd.screencapture.help.Utils
 import com.hd.screenrecordtool.help.ConfigHelp
-import com.hd.screenrecordtool.help.VideoHelper
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,10 +46,10 @@ class MainPresenter internal constructor(private val activity: AppCompatActivity
     }
 
     private fun initConfig() {
-        val videoConfig = if (help.useDefaultVideoConfig()) VideoConfig.initDefaultConfig(activity) else initVideoConfig(activity)
+        val videoConfig = if (help.useDefaultVideoConfig) VideoConfig.initDefaultConfig(activity) else initVideoConfig(activity)
         var audioConfig: AudioConfig? = null
-        if (help.hasAudio()) {
-            audioConfig = if (help.useDefaultAudioConfig()) AudioConfig.initDefaultConfig() else initAudioConfig()
+        if (help.hasAudio) {
+            audioConfig = if (help.useDefaultAudioConfig) AudioConfig.initDefaultConfig() else initAudioConfig()
         }
         captureConfig = ScreenCaptureConfig.Builder()//
                 .setAllowLog(false/*BuildConfig.DEBUG*/)//
@@ -87,8 +86,9 @@ class MainPresenter internal constructor(private val activity: AppCompatActivity
     }
 
     private fun setSelfFile(): File? {
-        if (!VideoHelper.VIDEO_FILE.exists() && !VideoHelper.VIDEO_FILE.mkdir())
+        val file=File(ConfigHelp(activity).saveVideoPath)
+        if (!file.exists() && !file.mkdir())
             return null
-        return File(VideoHelper.VIDEO_FILE, "screen_capture_" + SimpleDateFormat("yyyyMMdd-HH-mm-ss", Locale.US).format(Date()) + ".mp4")
+        return File(file, "screen_capture_" + SimpleDateFormat("yyyyMMdd-HH-mm-ss", Locale.US).format(Date()) + ".mp4")
     }
 }

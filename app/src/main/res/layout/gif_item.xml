@@ -84,6 +84,17 @@
                 <RelativeLayout style="@style/video_item_relative_style">
 
                     <ImageButton
+                        android:id="@+id/btnShareGif"
+                        style="@style/video_item_button_style"
+                        android:src="@drawable/share"/>
+
+                </RelativeLayout>
+
+                <View style="@style/video_item_view_style"/>
+
+                <RelativeLayout style="@style/video_item_relative_style">
+
+                    <ImageButton
                         android:id="@+id/btnShowGif"
                         style="@style/video_item_button_style"
                         android:src="@drawable/play"/>

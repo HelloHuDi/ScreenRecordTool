@@ -9,6 +9,8 @@
 
 ## The GIF transforming function comes from [MP4TransferToGif][2]
 
+## [download apk][3]
+
 ## screenshot
 
 <img src="art/main.png" width="280px" height="500px"/><img src="art/screen_1.gif" width="280px" height="500px"/><img src="art/screen_2.gif" width="280px" height="500px"/>
@@ -29,3 +31,4 @@
 
 [1]: https://github.com/HelloHuDi/ScreenCapture
 [2]: https://github.com/HelloHuDi/MP4TransferToGif
+[3]: https://github.com/HelloHuDi/ScreenRecordTool/master/app/release/app-release.apk

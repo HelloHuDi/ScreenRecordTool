@@ -15,6 +15,7 @@ import com.hd.screenrecordtool.help.GifHelper
 import com.zhy.adapter.recyclerview.CommonAdapter
 import com.zhy.adapter.recyclerview.base.ViewHolder
 import kotlinx.android.synthetic.main.activity_gif_list.*
+import java.io.File
 
 class GifListActivity : BaseActivity() {
 
@@ -55,6 +56,7 @@ class GifListActivity : BaseActivity() {
                     tvGifPath.isSelected = true
                     holder.getView<TextView>(R.id.tvGifSize).text = " size : ${t.size}"
                     holder.getView<ImageButton>(R.id.btnDelete).setOnClickListener { reportAdapter(t, beanList, position) }
+                    holder.getView<ImageButton>(R.id.btnShareGif).setOnClickListener { shareGif(t) }
                     holder.getView<ImageButton>(R.id.btnShowGif).setOnClickListener { showGif(t) }
                 }
             }
@@ -66,6 +68,10 @@ class GifListActivity : BaseActivity() {
         beanList.remove(t)
         notifyItemRemoved(position)
         reportFileSizeState(1, false)
+    }
+
+    private fun shareGif(t: GifBean) {
+        GifHelper.shareFile(this@GifListActivity, File(t.filePath))
     }
 
     private fun showGif(t: GifBean) {

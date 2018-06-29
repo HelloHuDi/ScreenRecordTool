@@ -15,8 +15,6 @@ import kotlin.concurrent.thread
  */
 object VideoHelper : CaptureHelper() {
 
-    val VIDEO_FILE = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "screen_capture")
-
     fun prepareBean(file: File): ArrayList<VideoBean> {
         val videoBeanArray = arrayListOf<VideoBean>()
         if (file.exists() && file.isDirectory && file.canRead()) {
@@ -28,6 +26,7 @@ object VideoHelper : CaptureHelper() {
                     videoBean.filePath = childFile.path
                     videoBean.name = childFile.name
                     videoBean.size = formatFileSize(childFile.length())
+                    videoBean.overflowSize = formatOverflow(childFile.length())
                     videoBeanArray.add(videoBean)
                 }
             }
@@ -102,4 +101,5 @@ object VideoHelper : CaptureHelper() {
             }
         }
     }
+
 }

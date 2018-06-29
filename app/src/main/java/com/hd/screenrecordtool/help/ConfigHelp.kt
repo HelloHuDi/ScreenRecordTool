@@ -2,6 +2,7 @@ package com.hd.screenrecordtool.help
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import android.preference.PreferenceManager
 
 /**
@@ -41,21 +42,24 @@ class ConfigHelp(context: Context) {
     val aacProfile: String
         get() = sp.getString(AAC_PROFILE, "")
 
-    fun useDefaultAudioConfig(): Boolean {
-        return sp.getBoolean(DEFAULT_VIDEO_CONFIG, false)
-    }
+    val saveVideoPath: String
+        get() = sp.getString(SAVE_PATH, Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MOVIES).absolutePath + "/screen_capture")
 
-    fun useDefaultVideoConfig(): Boolean {
-        return sp.getBoolean(DEFAULT_AUDIO_CONFIG, true)
-    }
+    val useDefaultAudioConfig: Boolean
+        get() = sp.getBoolean(DEFAULT_VIDEO_CONFIG, false)
 
-    fun hasAudio(): Boolean {
-        return sp.getBoolean(HAS_AUDIO, false)
-    }
+    val useDefaultVideoConfig: Boolean
+        get() = sp.getBoolean(DEFAULT_AUDIO_CONFIG, true)
+
+    val hasAudio: Boolean
+        get() = sp.getBoolean(HAS_AUDIO, false)
 
     companion object {
 
         const val HAS_AUDIO = "has_audio"
+        const val CAPTURE = "capture"
+        const val SAVE_PATH = "choose_path"
         const val VIDEO_ENCODER = "video_encoder"
         const val VIDEO_BITRATE = "video_bitrate"
         const val FPS = "fps"
