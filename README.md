@@ -31,4 +31,4 @@
 
 [1]: https://github.com/HelloHuDi/ScreenCapture
 [2]: https://github.com/HelloHuDi/MP4TransferToGif
-[3]: https://github.com/HelloHuDi/ScreenRecordTool/master/app/release/app-release.apk
+[3]: https://raw.githubusercontent.com/HelloHuDi/ScreenRecordTool/master/app/release/app-release.apk
