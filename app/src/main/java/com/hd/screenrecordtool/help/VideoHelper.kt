@@ -15,6 +15,8 @@ import kotlin.concurrent.thread
  */
 object VideoHelper : CaptureHelper() {
 
+    private const val endName=".mp4"
+
     fun prepareBean(file: File): ArrayList<VideoBean> {
         val videoBeanArray = arrayListOf<VideoBean>()
         if (file.exists() && file.isDirectory && file.canRead()) {
@@ -22,7 +24,7 @@ object VideoHelper : CaptureHelper() {
             for (path in fileList) {
                 val videoBean = VideoBean()
                 val childFile = File(file, path)
-                if (childFile.isFile && file.canRead()) {
+                if (childFile.isFile && file.canRead() && path.endsWith(endName)) {
                     videoBean.filePath = childFile.path
                     videoBean.name = childFile.name
                     videoBean.size = formatFileSize(childFile.length())

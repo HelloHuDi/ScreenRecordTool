@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
 
     private fun transformGIF(t: VideoBean) {
         if (t.overflowSize) {
-            Snackbar.make(coordinator, resources.getString(R.string.transform_hide), Snackbar.LENGTH_LONG)
+            Snackbar.make(mainCoordinator, resources.getString(R.string.transform_hide), Snackbar.LENGTH_LONG)
                     .setAction(resources.getString(R.string.transform_continue), { transfer(t) }).show()
         } else {
             transfer(t)
@@ -209,12 +209,12 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             //success
             dialog?.dismiss()
             notifyRefresh(path)
-            Snackbar.make(coordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG)
+            Snackbar.make(mainCoordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG)
                     .setAction(resources.getString(R.string.look_look), { seeSee(path) }).show()
         }, {
             //failed
             dialog?.dismiss()
-            Snackbar.make(coordinator, resources.getString(R.string.transform_failed), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(mainCoordinator, resources.getString(R.string.transform_failed), Snackbar.LENGTH_SHORT).show()
         })
     }
 
@@ -302,7 +302,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     }
 
     private fun reportFileSizeState(size: Int = 1, add: Boolean = size > 0) {
-        Snackbar.make(coordinator, if (size == 0) resources.getString(R.string.no_video_file) else
+        Snackbar.make(mainCoordinator, if (size == 0) resources.getString(R.string.no_video_file) else
             String.format(resources.getString(if (add) R.string.add_video_file else R.string.delete_video_file),
                     Math.abs(size)), Snackbar.LENGTH_SHORT).show()
     }
