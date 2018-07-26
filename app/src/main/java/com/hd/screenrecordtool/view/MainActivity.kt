@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
                     .setMessage("Screen currently is recording! Confirm the stop?")//
                     .setCancelable(false)//
                     .setPositiveButton(android.R.string.ok) { _, _ -> super.onBackPressed() }//
-                    .setNegativeButton(android.R.string.cancel, { _, _ -> moveTaskToBack(true) })//
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> moveTaskToBack(true) }//
                     .create()//
                     .show()
         } else {
@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
     private fun transformGIF(t: VideoBean) {
         if (t.overflowSize) {
             Snackbar.make(mainCoordinator, resources.getString(R.string.transform_hide), Snackbar.LENGTH_LONG)
-                    .setAction(resources.getString(R.string.transform_continue), { transfer(t) }).show()
+                    .setAction(resources.getString(R.string.transform_continue)) { transfer(t) }.show()
         } else {
             transfer(t)
         }
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
             dialog?.dismiss()
             notifyRefresh(path)
             Snackbar.make(mainCoordinator, resources.getString(R.string.transform_success), Snackbar.LENGTH_LONG)
-                    .setAction(resources.getString(R.string.look_look), { seeSee(path) }).show()
+                    .setAction(resources.getString(R.string.look_look)) { seeSee(path) }.show()
         }, {
             //failed
             dialog?.dismiss()
@@ -267,12 +267,21 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
                 startService()
             } else {
                 Snackbar.make(view, resources.getString(R.string.need_permission), Snackbar.LENGTH_LONG)//
-                        .setAction(resources.getString(R.string.to_set), {
+                        .setAction(resources.getString(R.string.to_set)) {
                             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                                     Uri.parse("package:$packageName"))
-                            startActivity(intent)
-                        }).show()
+                            startActivityForResult(intent,REQUEST_CODE)
+                        }.show()
             }
+        }
+    }
+
+    private val REQUEST_CODE = 0
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if ((requestCode==REQUEST_CODE) and Settings.canDrawOverlays(this)) {
+            startService()
         }
     }
 
@@ -316,7 +325,9 @@ class MainActivity : AppCompatActivity(), MainService.ScreenRecordCallback, Scre
 
     private fun stopService() {
         if (serviceBind) {
-            unbindService(connectionService)
+            try{
+                unbindService(connectionService)
+            }catch (e:java.lang.Exception){}
             Toast.makeText(this, resources.getString(R.string.sign_out_record), Toast.LENGTH_SHORT).show()
         }
     }

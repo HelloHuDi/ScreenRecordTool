@@ -16,7 +16,7 @@ import android.widget.TextView
 import com.hd.screenrecordtool.R
 import java.util.concurrent.atomic.AtomicBoolean
 
-class MainService : Service() {
+class MainService : Service(), View.OnTouchListener {
 
     interface ScreenRecordCallback {
 
@@ -56,7 +56,8 @@ class MainService : Service() {
     private val record = AtomicBoolean(false)
 
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
-    fun prepare() {
+    override fun onCreate() {
+        super.onCreate()
         val params = WindowManager.LayoutParams()
         windowManager = application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT >= 26) {
@@ -80,16 +81,10 @@ class MainService : Service() {
         val tvHint = recordLayout.findViewById<TextView>(R.id.tvHint)
         recordLayout.findViewById<ImageButton>(R.id.btnControl).setOnClickListener { control -> reportState(control, tvHint) }
         recordLayout.findViewById<Button>(R.id.btnStopService).setOnClickListener { callback.cancelRecord() }
-        recordLayout.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_MOVE -> {
-                    params.x = event.rawX.toInt()
-                    params.y = event.rawY.toInt()
-                    windowManager.updateViewLayout(recordLayout, params)
-                }
-            }
-            false
-        }
+        recordLayout.setOnTouchListener(this)
+    }
+
+    fun prepare() {
         callback.prepareRecord()
     }
 
@@ -112,5 +107,36 @@ class MainService : Service() {
     override fun onDestroy() {
         windowManager.removeView(recordLayout)
         super.onDestroy()
+    }
+
+    private var preX: Float = 0.toFloat()
+
+    private var preY:Float = 0.toFloat()
+
+    private var x:Float = 0.toFloat()
+
+    private var y:Float = 0.toFloat()
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                preX = event.rawX
+                preY = event.rawY
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                x = event.rawX
+                y = event.rawY
+                val params = v?.layoutParams as WindowManager.LayoutParams
+                params.x += (x - preX).toInt()
+                params.y += (y - preY).toInt()
+                windowManager.updateViewLayout(v, params)
+                preX = x
+                preY = y
+                return true
+            }
+        }
+        return false
     }
 }
